@@ -1,9 +1,14 @@
+import os
 from datetime import timedelta
 from pathlib import Path
+from dotenv import load_dotenv
+
+
+load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-2+tzns(7l$!uqd^)x@f4n0avur(pf-+^dq-e%snu9-1uzq4!t%'
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 
 DEBUG = True
 
