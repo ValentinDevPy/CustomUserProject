@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from rest_framework import status, mixins, viewsets
-from rest_framework.decorators import api_view, action
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 
@@ -25,23 +25,20 @@ class RetriveUpdateViewSet(
     pass
 
 
-class SelfInfoViewSet(viewsets.ViewSet):
-    @action(
-        detail=False, methods=('get', 'patch'),
-        url_path=r'me', permission_classes=(IsAuthenticated,)
-    )
-    def me(self, request, format=None):
-        me = self.request.user
-        if request.method == 'GET':
-            serializer = SelfInfoSerializer(me)
-            return Response(serializer.data)
-        if request.method == 'PATCH':
-            serializer = SelfUpdateSerializer(
-                request.user, data=request.data, partial=True)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return_data = SelfInfoSerializer(me)
-            return Response(data=return_data.data, status=status.HTTP_202_ACCEPTED)
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def me(request, format=None):
+    me = request.user
+    if request.method == 'GET':
+        serializer = SelfInfoSerializer(me)
+        return Response(serializer.data)
+    if request.method == 'PATCH':
+        serializer = SelfUpdateSerializer(
+            request.user, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return_data = SelfInfoSerializer(me)
+        return Response(data=return_data.data, status=status.HTTP_202_ACCEPTED)
 
 
 class UsersViewSet(viewsets.ModelViewSet):
